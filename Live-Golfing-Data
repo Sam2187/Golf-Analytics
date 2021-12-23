@@ -1,37 +1,55 @@
+#Tutorial
+
+
+#First we import the packages needed
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
 
-# Defining the url
+
+#We now define the url we are going to be using
 url = 'http://www.owgr.com/en/Ranking.aspx?pageNo=1&pageSize=300&country=All'
 
-# Make HTTP request to URL
+
+#We then need to initiante the http request to url
 res = requests.get(url)
 
-# Generate BeautifulSoup object
+
+#Here we use beautifulsoup to scrape the data
 soup = BeautifulSoup(res.content, 'lxml')
 
-# Find the first table element on the page
+
+#Now we find the first table element on the page, this can be changed according
+#to the html tag we need
 table = soup.find('table')
 
-# Instantiate a blank list and a counter for ranking position
+
+#We then initiate a blank list and a counter for ranking position
 rankings = []
 curr_rank = 1
 
-# Iterate over all rows in the table, starting with the 2nd row
+
+#We then use a for loop to iterate over all rows in the table, starting with
+#the second row to get the top 100 golfers
 for rows in table.find_all('tr')[1:101]: 
-    # Instatiate dictionary for each row
-    player = {}
+  
+  
+#Now we create a variable for the for loop to store the data in
+player = {}
 
-    # Assign the name, country, and rank for each player/row of the table
-    player['name'] = rows.find('td',{'class':'name'}).text
-    player['country'] = rows.find('td',{'class':'ctry'}).find('img')['title']
-    player['rank'] = curr_rank
-    curr_rank += 1
 
-    # Append each player to the ranking list
-    rankings.append(player)
+#We then assign the name, country, and rank for each player we need in our
+#table
+player['name'] = rows.find('td',{'class':'name'}).text
+player['country'] = rows.find('td',{'class':'ctry'}).find('img')['title']
+player['rank'] = curr_rank
+curr_rank += 1
 
-# Create OWGR dataframe with ranking as index
-owgr = pd.DataFrame(rankings).set_index('rank')
-owgr.to_csv('./current-OWGR.csv')
+
+#Then we append each player to the ranking list
+rankings.append(player)
+
+
+#Finally we create a dataframe with ranking as index
+df = pd.DataFrame(rankings).set_index('rank')
+df.to_csv('./current-top100.csv')
